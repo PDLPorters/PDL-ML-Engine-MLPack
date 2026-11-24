@@ -2,17 +2,14 @@ use 5.010;
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
+use ExtUtils::CppGuess;
 use PDL::Core::Dev;
 
 if (!-f '/usr/include/mlpack.hpp' && !-f '/usr/local/include/mlpack.hpp') {
-    warn "libmlpack-dev (mlpack.hpp) is required to build PDL::ML::Engine::MLPack.\n";
-    exit 0;
+    die "libmlpack-dev (mlpack.hpp) is required to build PDL::ML::Engine::MLPack.\n";
 }
 
-my $pdl_inc = PDL::Core::Dev::PDL_INCLUDE();
-$pdl_inc =~ s/^"|"$//g;
-
-use ExtUtils::CppGuess;
+my $pdl_inc      = PDL::Core::Dev::PDL_INCLUDE();
 my $guess        = ExtUtils::CppGuess->new();
 my %cpp_opts     = $guess->makemaker_options();
 my $cpp_compiler = $guess->compiler_command() || 'g++';
@@ -37,8 +34,8 @@ WriteMakefile(
     PREREQ_PM => {
         'PDL' => '2.080',
     },
-    INC    => "-I. $pdl_inc",
-    LIBS   => ["-larmadillo -lblas -llapack $cpp_libs"],
+    INC    => '-I. ' . $pdl_inc,
+    LIBS   => [ '-larmadillo -lblas -llapack ' . $cpp_libs ],
     OBJECT => 'MLPack$(OBJ_EXT) mlpack_bridge$(OBJ_EXT)',
     XS     => { 'MLPack.xs' => 'MLPack.c' },
     clean  => { FILES => 'PDL-ML-Engine-MLPack-* *.o MLPack.bs MLPack.c' },
@@ -47,11 +44,11 @@ WriteMakefile(
         resources   => {
             repository => {
                 type => 'git',
-                url  => 'https://github.com/GoogleCloudPlatform/google-auth-library-perl.git',
-                web  => 'https://github.com/GoogleCloudPlatform/google-auth-library-perl',
+                url  => 'https://github.com/PDLPorters/PDL-ML-Engine-MLPack.git',
+                web  => 'https://github.com/PDLPorters/PDL-ML-Engine-MLPack',
             },
             bugtracker => {
-                web => 'https://github.com/GoogleCloudPlatform/google-auth-library-perl/issues',
+                web => 'https://github.com/PDLPorters/PDL-ML-Engine-MLPack/issues',
             },
         },
     },
