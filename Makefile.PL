@@ -5,9 +5,17 @@ use ExtUtils::MakeMaker;
 use ExtUtils::CppGuess;
 use PDL::Core::Dev;
 
-if (!-f '/usr/include/mlpack.hpp' && !-f '/usr/local/include/mlpack.hpp') {
+my $mlpack_inc;
+for my $dir ('/usr/include', '/usr/local/include', '/opt/homebrew/include') {
+    if (-f "$dir/mlpack.hpp") {
+        $mlpack_inc = $dir;
+        last;
+    }
+}
+if (!$mlpack_inc) {
     die "libmlpack-dev (mlpack.hpp) is required to build PDL::ML::Engine::MLPack.\n";
 }
+my $lib_flag = $mlpack_inc =~ m{^/opt/homebrew} ? '-L/opt/homebrew/lib ' : '';
 
 my $pdl_inc      = PDL::Core::Dev::PDL_INCLUDE();
 my $guess        = ExtUtils::CppGuess->new();
@@ -34,8 +42,8 @@ WriteMakefile(
     PREREQ_PM => {
         'PDL' => '2.080',
     },
-    INC    => '-I. ' . $pdl_inc,
-    LIBS   => [ '-larmadillo -lblas -llapack ' . $cpp_libs ],
+    INC    => '-I. ' . $pdl_inc . ' -I' . $mlpack_inc,
+    LIBS   => [ $lib_flag . '-larmadillo -lblas -llapack ' . $cpp_libs ],
     OBJECT => 'MLPack$(OBJ_EXT) mlpack_bridge$(OBJ_EXT)',
     XS     => { 'MLPack.xs' => 'MLPack.c' },
     clean  => { FILES => 'PDL-ML-Engine-MLPack-* *.o MLPack.bs MLPack.c' },
@@ -62,6 +70,6 @@ CXX = $cpp_compiler
 CXXFLAGS = $cpp_flags -O2 -fPIC
 
 mlpack_bridge\$(OBJ_EXT): mlpack_bridge.cc mlpack_bridge.h
-\t\$(CXX) \$(CXXFLAGS) -I. -c mlpack_bridge.cc -o mlpack_bridge\$(OBJ_EXT)
+\t\$(CXX) \$(CXXFLAGS) -I. -I$mlpack_inc -c mlpack_bridge.cc -o mlpack_bridge\$(OBJ_EXT)
 END_MAKE
 }
