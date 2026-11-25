@@ -7,3 +7,14 @@
 ^MLPack\.bs$
 \.o$
 ^PDL-ML-Engine-MLPack-
+^\.git/
+^\.github/
+^\.gitignore$
+^dot-git/
+^_alien/
+\.bs$
+\.xsc$
+^lib/.*\.c$
+\.tar\.gz$
+~$
+\.bak$

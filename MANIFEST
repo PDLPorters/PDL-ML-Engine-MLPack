@@ -1,10 +1,12 @@
 Changes
-lib/PDL/ML/Engine/MLPack.pm
-Makefile.PL
+LICENSE
 MANIFEST
 MANIFEST.SKIP
 MLPack.xs
+Makefile.PL
+README.md
+examples/quickstart.pl
+lib/PDL/ML/Engine/MLPack.pm
 mlpack_bridge.cc
 mlpack_bridge.h
-README.md
 t/00-load.t

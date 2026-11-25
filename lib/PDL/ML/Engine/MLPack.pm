@@ -91,6 +91,66 @@ C<($assignments, $centroids)>.
 
     ($assignments, $centroids) = kmeans($X, $k);
 
+=head1 TUTORIAL
+
+This tutorial adapts the classic C<mlpack> linear regression and K-Means
+clustering quickstarts to idiomatic Perl and L<PDL>.
+
+=head2 1. Ordinary Least Squares and Ridge Regression
+
+Build a 2D feature matrix C<$X> (rows = samples, columns = features) and a 1D
+target vector C<$y> as L<PDL> ndarrays, then fit a linear model with
+C<linear_regression>:
+
+    use strict;
+    use warnings;
+    use PDL;
+    use PDL::ML::Engine::MLPack qw(mlpack_version linear_regression kmeans);
+
+    print 'mlpack version: ', mlpack_version(), "\n";
+
+    # True relation: y = 1 + 2*x1 + 3*x2
+    my $X = double([
+        [1, 0],
+        [0, 1],
+        [1, 1],
+        [2, 1],
+        [1, 2],
+        [2, 2],
+    ]);
+    my $y = double([3, 4, 6, 8, 9, 11]);
+
+    # OLS (lambda => 0.0)
+    my ($params, $preds) = linear_regression($X, $y, lambda => 0.0);
+    my $max_err = abs($preds - $y)->max();
+    print 'OLS parameters: ', $params, "\n";
+    print 'OLS max error:  ', $max_err, "\n";
+
+    # L2-regularized Ridge regression (lambda > 0)
+    my ($ridge_params, $ridge_preds) = linear_regression($X, $y, lambda => 0.1);
+    print 'Ridge parameters: ', $ridge_params, "\n";
+
+=head2 2. K-Means Clustering
+
+Pass a 2D matrix of observations and the desired cluster count C<$k> to
+C<kmeans> to obtain per-point cluster assignments and learned centroids:
+
+    my $pts = double([
+        [ 0.0,  0.0],
+        [ 0.1,  0.1],
+        [ 0.0,  0.2],
+        [10.0, 10.0],
+        [10.1, 10.1],
+        [10.0, 10.2],
+    ]);
+
+    my ($assignments, $centroids) = kmeans($pts, 2);
+    print 'Cluster assignments: ', $assignments, "\n";
+    print 'Centroids: ', $centroids, "\n";
+
+See F<examples/quickstart.pl> in the distribution for a complete runnable
+script.
+
 =head1 TYPES
 
 Supports standard real numeric PDL types (C<byte>, C<short>, C<long>, C<longlong>, C<float>, C<double> as supported by the underlying library). Complex types (C<cfloat>, C<cdouble>) are not supported by this backend.
@@ -103,8 +163,11 @@ L<PDL>, L<PDL::XGBoost>, L<PDL::Torch>, L<PDL::FAISS>, L<PDL::DuckDB>
 
 C.J. Collier <cjac@google.com>
 
-=head1 LICENSE
+=head1 COPYRIGHT AND LICENSE
 
-Licensed under the Apache License, Version 2.0.
+Copyright 2026 Google LLC
+
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
 
 =cut
